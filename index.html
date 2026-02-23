@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Fitness Pro — Dashboard</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<meta name="description" content="Professional Fitness Tracker Web App" />
+		<link rel="stylesheet" href="style.css" />
+		<script>
+			// Prevent flash: apply dark class early based on localStorage
+			(function(){
+				try{
+					const mode = localStorage.getItem('fp-theme');
+					if(mode === 'dark') document.documentElement.classList.add('dark');
+				}catch(e){}
+			})();
+		</script>
+	</head>
+	<body class="bg-slate-950 text-slate-100 min-h-screen">
+		<header class="max-w-6xl mx-auto px-4 py-6">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center gap-4">
+					<div class="h-12 w-12 bg-gradient-to-tr from-amber-400 to-emerald-400 rounded-md flex items-center justify-center text-slate-900 font-extrabold">FP</div>
+					<div>
+						<h1 class="text-2xl font-extrabold tracking-tight">Fitness Pro</h1>
+						<p class="text-sm text-slate-300">Professional Fitness Tracker • Ultra Dark Mode</p>
+					</div>
+				</div>
+				<div class="flex items-center gap-3">
+					<div id="quoteOfDay" class="hidden sm:inline-block text-sm italic text-slate-300 max-w-xl"></div>
+					<button id="themeToggle" aria-label="Toggle dark mode" class="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/20 text-amber-300">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-300" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zM4.22 4.22a1 1 0 011.42 0L6.34 5.0a1 1 0 11-1.42 1.42L4.22 5.64a1 1 0 010-1.42zM2 10a1 1 0 011-1h1a1 1 0 110 2H3a1 1 0 01-1-1zm8 7a1 1 0 011-1v-1a1 1 0 10-2 0v1a1 1 0 011 1zM15.78 15.78a1 1 0 010-1.42L16.96 13.4a1 1 0 111.42 1.42l-1.18 1.18a1 1 0 01-1.42 0zM17 9a1 1 0 100 2h1a1 1 0 100-2h-1zM6.34 14.58a1 1 0 001.42 0L8.78 13.56a1 1 0 10-1.42-1.42L6.34 13.16a1 1 0 000 1.42z"/></svg>
+						<span class="text-sm">Theme</span>
+					</button>
+				</div>
+			</div>
+		</header>
+
+		<main class="max-w-6xl mx-auto px-4 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
+			<!-- Left: Form and Results -->
+			<section class="lg:col-span-2 space-y-6">
+				<div class="card">
+					<div class="flex items-center justify-between">
+						<div>
+							<h2 class="text-xl font-semibold">Calculate Your BMR & TDEE</h2>
+							<p class="text-sm text-slate-300">Enter your details</p>
+						</div>
+						<div class="text-right">
+							<div class="text-xs text-slate-400">Progress</div>
+							<div class="mt-2 flex items-center gap-3">
+								<div id="tdeeDonutWrap" class="w-16 h-16" aria-hidden>
+									<svg id="tdeeDonut" viewBox="0 0 42 42" class="w-16 h-16">
+										<circle cx="21" cy="21" r="15.9" class="donut-bg" stroke-width="6" fill="transparent"></circle>
+										<circle cx="21" cy="21" r="15.9" class="donut-fg" stroke-width="6" fill="transparent" stroke-linecap="round" transform="rotate(-90 21 21)"></circle>
+										<text id="tdeePct" x="21" y="23" text-anchor="middle" class="donut-text text-sm font-semibold text-slate-100">—%</text>
+									</svg>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<form id="fitnessForm" class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium mb-1 text-slate-300">Weight (kg)</label>
+							<input id="weight" type="number" min="1" step="0.1" required class="w-full rounded-md bg-slate-900 border border-slate-800 px-3 py-2 text-slate-100" placeholder="e.g., 70" />
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1 text-slate-300">Height (cm)</label>
+							<input id="height" type="number" min="1" step="0.1" required class="w-full rounded-md bg-slate-900 border border-slate-800 px-3 py-2 text-slate-100" placeholder="e.g., 175" />
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium mb-1 text-slate-300">Age (years)</label>
+							<input id="age" type="number" min="0" required class="w-full rounded-md bg-slate-900 border border-slate-800 px-3 py-2 text-slate-100" placeholder="e.g., 30" />
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1 text-slate-300">Gender</label>
+							<select id="gender" class="w-full rounded-md bg-slate-900 border border-slate-800 px-3 py-2 text-slate-100">
+								<option value="male">Male</option>
+								<option value="female">Female</option>
+								<option value="other">Other</option>
+							</select>
+						</div>
+
+						<div class="sm:col-span-2">
+							<label class="block text-sm font-medium mb-1 text-slate-300">Activity Level</label>
+							<select id="activity" class="w-full rounded-md bg-slate-900 border border-slate-800 px-3 py-2 text-slate-100">
+								<option value="1.2">Sedentary (little or no exercise)</option>
+								<option value="1.375">Lightly active (1–3 days/week)</option>
+								<option value="1.55">Moderately active (3–5 days/week)</option>
+								<option value="1.725">Very active (6–7 days/week)</option>
+								<option value="1.9">Extra active (very intense exercise)</option>
+							</select>
+						</div>
+
+						<div class="sm:col-span-2">
+							<label class="block text-sm font-medium mb-1 text-slate-300">User Goal</label>
+							<select id="goal" class="w-full rounded-md bg-slate-900 border border-amber-400/20 px-3 py-2 text-amber-300">
+								<option value="maintain">Maintain Weight (Stay)</option>
+								<option value="lose">Lose Weight (Cut)</option>
+								<option value="gain">Gain Muscle (Bulk)</option>
+							</select>
+						</div>
+
+						<div class="sm:col-span-2">
+							<label class="block text-sm font-medium mb-1 text-slate-300">Meal Profile</label>
+							<select id="mealProfile" class="w-full rounded-md bg-slate-900 border border-slate-800 px-3 py-2 text-slate-100">
+								<option value="lean">Lean Protein</option>
+								<option value="highcarb">High Carb</option>
+								<option value="keto">Keto-style</option>
+							</select>
+						</div>
+
+						<div class="sm:col-span-2 flex gap-3 mt-2">
+							<button type="button" id="calculateBtn" class="px-4 py-2 bg-amber-400 text-slate-900 rounded-md hover:brightness-95">Calculate</button>
+							<button type="reset" id="resetBtn" class="px-4 py-2 bg-slate-800 text-slate-200 rounded-md border border-slate-700">Reset</button>
+							<button type="button" id="printBtn" class="ml-auto inline-flex items-center gap-2 px-4 py-2 bg-slate-900 border border-amber-400 text-amber-300 rounded-md">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V3h12v6M6 14h12v7H6v-7z"/></svg>
+								Print My Plan
+							</button>
+						</div>
+					</form>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div class="card">
+						<h3 class="text-lg font-semibold">Basal Metabolic Rate (BMR)</h3>
+						<p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Estimated calories your body burns at rest.</p>
+						<div class="mt-4">
+							<div id="bmrCard" class="text-3xl font-bold">— kcal/day</div>
+							<div id="bmrFormula" class="mt-2 text-sm text-gray-600 dark:text-gray-400">Formula: Mifflin-St Jeor</div>
+						</div>
+					</div>
+
+					<div class="card">
+						<h3 class="text-lg font-semibold">Total Daily Energy Expenditure (TDEE)</h3>
+						<p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Estimated daily calories based on activity.</p>
+						<div class="mt-4">
+							<div class="flex items-center gap-4">
+								<div id="tdeeCard" class="text-3xl font-bold">— kcal/day</div>
+								<div class="text-sm text-slate-400">vs BMR <span id="tdeeRatio">—</span></div>
+							</div>
+							<div id="tdeeBreakdown" class="mt-2 text-sm text-slate-400">Activity multiplier applied</div>
+						</div>
+					</div>
+				</div>
+        
+				<div class="card anim" data-anim>
+					<h3 class="text-lg font-semibold">Daily Meal Suggestion</h3>
+					<p class="text-sm text-slate-400 mt-1">Simple calorie-guided meals based on your TDEE</p>
+					<div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 printable">
+						<div id="breakfastCard" class="p-3 rounded bg-slate-900/60 text-slate-200">Breakfast</div>
+						<div id="lunchCard" class="p-3 rounded bg-slate-900/60 text-slate-200">Lunch</div>
+						<div id="dinnerCard" class="p-3 rounded bg-slate-900/60 text-slate-200">Dinner</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Right: Quick Stats / Workout Plans -->
+			<aside class="space-y-6">
+				<div class="card">
+					<h3 class="text-lg font-semibold">Quick Stats</h3>
+					<ul class="mt-4 space-y-2 text-sm text-gray-700 dark:text-gray-300">
+						<li><strong>Consistency:</strong> Track daily for best results.</li>
+						<li><strong>Hydration:</strong> Aim for 2-3L per day.</li>
+						<li><strong>Sleep:</strong> 7–9 hours recommended.</li>
+					</ul>
+				</div>
+
+				<div class="card">
+					<div class="flex items-center justify-between">
+						<h3 class="text-lg font-semibold">Workout Plans</h3>
+						<span class="text-sm text-gray-500 dark:text-gray-400">Choose one</span>
+					</div>
+
+					<div class="mt-4 space-y-3">
+						<div class="p-3 bg-white/5 dark:bg-gray-900/50 rounded">
+							<label class="block text-sm text-slate-300 mb-2">Select Plan</label>
+							<select id="workoutPlan" class="w-full rounded-md bg-slate-900 border border-slate-800 px-3 py-2 text-slate-100">
+								<option value="ppl">Push / Pull / Legs (PPL)</option>
+								<option value="full">Full Body</option>
+								<option value="arnold">Arnold Split (6-Day)</option>
+							</select>
+							<div id="workoutDetails" class="mt-3 text-sm text-slate-200 printable"></div>
+						</div>
+					</div>
+				</div>
+
+			<div class="card anim" data-anim>
+				<h3 class="text-lg font-semibold">Water Intake</h3>
+				<p class="text-sm text-slate-400 mt-1">Click glasses to mark water consumed</p>
+				<div id="waterTracker" class="mt-4 flex items-center gap-2">
+					<!-- 8 glasses -->
+					<span class="water-glass" data-i="1" title="1"></span>
+					<span class="water-glass" data-i="2" title="2"></span>
+					<span class="water-glass" data-i="3" title="3"></span>
+					<span class="water-glass" data-i="4" title="4"></span>
+					<span class="water-glass" data-i="5" title="5"></span>
+					<span class="water-glass" data-i="6" title="6"></span>
+					<span class="water-glass" data-i="7" title="7"></span>
+					<span class="water-glass" data-i="8" title="8"></span>
+				</div>
+				<div class="mt-3 text-sm text-slate-400">Consumed: <span id="waterCount">0</span>/8</div>
+				<div class="mt-2">
+					<button id="waterReset" class="px-3 py-1 bg-emerald-400 text-slate-900 rounded">Reset</button>
+				</div>
+			</div>
+
+			<div class="card anim" data-anim>
+				<h3 class="text-lg font-semibold">Motivation</h3>
+				<p id="quoteLarge" class="mt-3 text-sm text-slate-300 italic">"—"</p>
+			</div>
+
+			</aside>
+		</main>
+
+		<footer class="max-w-6xl mx-auto px-4 py-8 text-sm text-gray-600 dark:text-gray-400">
+			<div class="flex items-center justify-between">
+				<div>© <span id="year"></span> Fitness Pro</div>
+				<div>Built with Tailwind • <a href="#" class="text-indigo-600 dark:text-indigo-400">Privacy</a></div>
+			</div>
+		</footer>
+
+		<script>
+			// Small UI behavior: year, theme toggle wiring (calculation done in script.js)
+			document.getElementById('year').textContent = new Date().getFullYear();
+			const themeToggle = document.getElementById('themeToggle');
+			themeToggle.addEventListener('click', () => {
+				const isDark = document.documentElement.classList.toggle('dark');
+				try{ localStorage.setItem('fp-theme', isDark ? 'dark' : 'light'); }catch(e){}
+			});
+		</script>
+
+		<script src="script.js"></script>
+	</body>
+</html>
